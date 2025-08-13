@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}SpaceX Rockets{% endblock %}
+
+{% block content %}
+<h2>🔥 SpaceX Rockets</h2>
+
+{% if rockets %}
+    <p>{{ rockets|length }} rocket{{ 's' if rockets|length != 1 else '' }} in the database.</p>
+    
+    <div class="grid grid-2">
+        {% for rocket in rockets %}
+        <div class="card">
+            <h3>{{ rocket.name }}</h3>
+            
+            {% if rocket.description %}
+                <p>{{ rocket.description }}</p>
+            {% endif %}
+            
+            <div style="margin-top: 15px;">
+                {% if rocket.height_meters %}
+                    <p><strong>Height:</strong> {{ rocket.height_meters }} meters</p>
+                {% endif %}
+                
+                {% if rocket.mass_kg %}
+                    <p><strong>Mass:</strong> {{ "{:,}".format(rocket.mass_kg) }} kg</p>
+                {% endif %}
+                
+                {% if rocket.first_flight %}
+                    <p><strong>First Flight:</strong> {{ rocket.first_flight }}</p>
+                {% endif %}
+                
+                {% if rocket.cost_per_launch %}
+                    <p><strong>Cost per Launch:</strong> ${{ "{:,}".format(rocket.cost_per_launch) }}</p>
+                {% endif %}
+                
+                {% if rocket.success_rate_pct is not none %}
+                    <p><strong>Success Rate:</strong> {{ rocket.success_rate_pct }}%</p>
+                {% endif %}
+                
+                <p><strong>Status:</strong> 
+                    {% if rocket.active %}
+                        🟢 Active
+                    {% else %}
+                        🔴 Inactive
+                    {% endif %}
+                </p>
+                
+                {% if rocket.stages %}
+                    <p><strong>Stages:</strong> {{ rocket.stages }}</p>
+                {% endif %}
+                
+                {% if rocket.boosters %}
+                    <p><strong>Boosters:</strong> {{ rocket.boosters }}</p>
+                {% endif %}
+                
+                {% if rocket.wikipedia_url %}
+                    <a href="{{ rocket.wikipedia_url }}" target="_blank" class="btn btn-primary">📖 Learn More</a>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="card">
+        <h3>No Rockets Found</h3>
+        <p>No rockets found in the database. Please run the rocket data fetcher script first:</p>
+        <code>python fetch_rockets.py</code>
+    </div>
+{% endif %}
+{% endblock %}

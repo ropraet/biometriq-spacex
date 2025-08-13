@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}Starred Crew Members{% endblock %}
+
+{% block content %}
+<h2>⭐ Your Starred Crew Members</h2>
+
+{% if starred_crew %}
+    <p>You have starred {{ starred_crew|length }} crew member{{ 's' if starred_crew|length != 1 else '' }}.</p>
+    
+    <div class="grid grid-3">
+        {% for crew in starred_crew %}
+        <div class="card">
+            {% if crew.image_url %}
+                <img src="{{ crew.image_url }}" alt="{{ crew.crew_name }}" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; margin-bottom: 10px;">
+            {% endif %}
+            
+            <h4>{{ crew.crew_name }}</h4>
+            <p><strong>Your Nickname:</strong> "{{ crew.nickname }}"</p>
+            <p><strong>Starred:</strong> {{ crew.starred_at.strftime('%Y-%m-%d %H:%M') if crew.starred_at else 'Unknown' }}</p>
+            
+            {% if crew.wikipedia_url %}
+                <a href="{{ crew.wikipedia_url }}" target="_blank" class="btn btn-primary">📖 Wikipedia</a>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="card">
+        <h3>No Starred Crew Members</h3>
+        <p>You haven't starred any crew members yet. Visit a launch with crew members to start starring your favorites!</p>
+        <a href="{{ url_for('index') }}" class="btn btn-primary">Browse Launches</a>
+    </div>
+{% endif %}
+{% endblock %}

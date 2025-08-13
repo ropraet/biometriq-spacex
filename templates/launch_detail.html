@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block title %}{{ launch.name }} - Launch Details{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 20px;">
+    <a href="{{ url_for('index') }}" class="btn btn-primary">← Back to Launches</a>
+</div>
+
+<h2>{{ launch.name }}</h2>
+
+<div class="grid grid-2">
+    <div class="card">
+        <h3>Launch Information</h3>
+        <p><strong>Flight Number:</strong> {{ launch.flight_number }}</p>
+        <p><strong>Date:</strong> {{ launch.date_utc[:19] if launch.date_utc else 'TBD' }}</p>
+        <p><strong>Success:</strong> 
+            {% if launch.success == true %}
+                ✅ Successful
+            {% elif launch.success == false %}
+                ❌ Failed
+            {% else %}
+                ⏳ Pending/Unknown
+            {% endif %}
+        </p>
+        
+        {% if launch.details %}
+            <p><strong>Details:</strong> {{ launch.details }}</p>
+        {% endif %}
+        
+        {% if launch.links %}
+            <div style="margin-top: 15px;">
+                <strong>Links:</strong><br>
+                {% if launch.links.webcast %}
+                    <a href="{{ launch.links.webcast }}" target="_blank" style="margin-right: 10px;">🎥 Webcast</a>
+                {% endif %}
+                {% if launch.links.wikipedia %}
+                    <a href="{{ launch.links.wikipedia }}" target="_blank" style="margin-right: 10px;">📖 Wikipedia</a>
+                {% endif %}
+                {% if launch.links.article %}
+                    <a href="{{ launch.links.article }}" target="_blank" style="margin-right: 10px;">📰 Article</a>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+    
+    {% if launch.links and launch.links.patch %}
+        <div class="card" style="text-align: center;">
+            <h3>Mission Patch</h3>
+            {% if launch.links.patch.large %}
+                <img src="{{ launch.links.patch.large }}" alt="Mission patch" style="max-width: 200px; max-height: 200px; object-fit: contain;">
+            {% elif launch.links.patch.small %}
+                <img src="{{ launch.links.patch.small }}" alt="Mission patch" style="max-width: 150px; max-height: 150px; object-fit: contain;">
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+
+{% if crew_members %}
+    <h3>Crew Members ({{ crew_members|length }})</h3>
+    <div class="grid grid-3">
+        {% for crew in crew_members %}
+        <div class="card">
+            {% if crew.image %}
+                <img src="{{ crew.image }}" alt="{{ crew.name }}" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; margin-bottom: 10px;">
+            {% endif %}
+            
+            <h4>{{ crew.name }}</h4>
+            
+            {% if crew.agency %}
+                <p><strong>Agency:</strong> {{ crew.agency }}</p>
+            {% endif %}
+            
+            {% if crew.status %}
+                <p><strong>Status:</strong> {{ crew.status|title }}</p>
+            {% endif %}
+            
+            {% if crew.launches %}
+                <p><strong>Total Launches:</strong> {{ crew.launches|length }}</p>
+            {% endif %}
+            
+            {% if crew.wikipedia %}
+                <a href="{{ crew.wikipedia }}" target="_blank" style="margin-right: 10px;">📖 Wikipedia</a>
+            {% endif %}
+            
+            <!-- Star this crew member form -->
+            <form method="POST" action="{{ url_for('star_crew') }}" style="margin-top: 15px;">
+                <input type="hidden" name="crew_id" value="{{ crew.id }}">
+                <input type="hidden" name="crew_name" value="{{ crew.name }}">
+                <input type="hidden" name="image_url" value="{{ crew.image }}">
+                <input type="hidden" name="wikipedia_url" value="{{ crew.wikipedia }}">
+                
+                <div style="margin-bottom: 10px;">
+                    <label for="nickname_{{ crew.id }}">Give {{ crew.name.split()[0] }} a nickname:</label>
+                    <input type="text" name="nickname" id="nickname_{{ crew.id }}" placeholder="Enter nickname" required 
+                           style="width: 100%; padding: 5px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;">
+                </div>
+                
+                <button type="submit" class="btn btn-success">⭐ Star This Crew Member</button>
+            </form>
+        </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="card">
+        <h3>No Crew Information</h3>
+        <p>This launch did not have crew members or crew information is not available.</p>
+    </div>
+{% endif %}
+{% endblock %}

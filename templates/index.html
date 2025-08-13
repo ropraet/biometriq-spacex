@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}SpaceX Launches{% endblock %}
+
+{% block content %}
+<h2>SpaceX Launches</h2>
+<p>Explore SpaceX launches with crew information. Showing {{ launches|length }} of {{ total }} launches.</p>
+
+{% if launches %}
+    <div class="grid grid-2">
+        {% for launch in launches %}
+        <div class="card">
+            <h3>{{ launch.name }}</h3>
+            <p><strong>Flight Number:</strong> {{ launch.flight_number }}</p>
+            <p><strong>Date:</strong> {{ launch.date_utc[:10] if launch.date_utc else 'TBD' }}</p>
+            <p><strong>Success:</strong> 
+                {% if launch.success == true %}
+                    ✅ Yes
+                {% elif launch.success == false %}
+                    ❌ No
+                {% else %}
+                    ⏳ Pending
+                {% endif %}
+            </p>
+            
+            {% if launch.details %}
+                <p><strong>Details:</strong> {{ launch.details[:150] }}{% if launch.details|length > 150 %}...{% endif %}</p>
+            {% endif %}
+            
+            {% if launch.crew %}
+                <p><strong>Crew Members:</strong> {{ launch.crew|length }}</p>
+            {% endif %}
+            
+            {% if launch.links and launch.links.patch and launch.links.patch.small %}
+                <img src="{{ launch.links.patch.small }}" alt="Mission patch" style="width: 60px; height: 60px; object-fit: contain; margin: 10px 0;">
+            {% endif %}
+            
+            <div style="margin-top: 15px;">
+                <a href="{{ url_for('launch_detail', launch_id=launch.id) }}" class="btn btn-primary">
+                    View Details & Crew
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <!-- Pagination -->
+    {% if total_pages > 1 %}
+        <div class="pagination">
+            {% if has_prev %}
+                <a href="{{ url_for('index', page=page-1) }}" aria-label="Previous page">←</a>
+            {% endif %}
+            {% for p in range(1, total_pages + 1) %}
+                {% if p == page %}
+                    <span class="current">{{ p }}</span>
+                {% else %}
+                    <a href="{{ url_for('index', page=p) }}">{{ p }}</a>
+                {% endif %}
+            {% endfor %}
+            {% if has_next %}
+                <a href="{{ url_for('index', page=page+1) }}" aria-label="Next page">→</a>
+            {% endif %}
+        </div>
+        
+        <p style="text-align: center; color: #666;">
+            Page {{ page }} of {{ total_pages }} ({{ total }} total launches)
+        </p>
+    {% endif %}
+    
+{% else %}
+    <div class="card">
+        <p>No launches found. Please check your internet connection or try again later.</p>
+    </div>
+{% endif %}
+{% endblock %}
